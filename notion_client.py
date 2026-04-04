@@ -6,10 +6,11 @@ Implemented in Chunks 2-5.
 
 import httpx
 import time
+from datetime import datetime, timezone, timedelta
 from typing import Optional, Dict, List
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception
 
-from config import NOTION_API_KEY, NOTION_API_VERSION, NOTION_BASE_URL
+from config import NOTION_API_KEY, NOTION_API_VERSION, NOTION_BASE_URL, get_database_id
 from logger import setup_logger
 
 logger = setup_logger("notion_client")
@@ -615,3 +616,95 @@ def append_blocks(page_id: str, blocks: list) -> None:
         _handle_response(response)
         if i + BATCH_SIZE < len(blocks):
             time.sleep(0.35)
+
+
+IST = timezone(timedelta(hours=5, minutes=30))
+
+
+def log_pipeline_run(
+    run_type: str,
+    cycle_summary: dict,
+    duration_seconds: float,
+) -> Optional[str]:
+    """
+    Write a pipeline run summary row to the Pipeline Runs database.
+
+    Args:
+        run_type: "Cycle 1", "Cycle 2", "Cycle 3", "Cycle 4", or "Daily Brief"
+        cycle_summary: The full return value from run_search_cycle() or run_daily_brief()
+        duration_seconds: How long the run took
+
+    Returns:
+        Page ID of the created row, or None on failure
+    """
+    pr_id = get_database_id("pipeline_runs")
+
+    now = datetime.now(IST)
+    run_date = now.strftime("%Y-%m-%d")
+    run_title = f"{run_type} — {run_date} {now.strftime('%H:%M')}"
+
+    number_fields: Dict[str, float] = {
+        "Duration Seconds": duration_seconds,
+    }
+    rich_text_fields: Dict[str, str] = {}
+
+    if run_type.startswith("Cycle"):
+        ing = cycle_summary.get("ingestion") or {}
+        rec = cycle_summary.get("reconciliation") or {}
+
+        number_fields.update({
+            "Pass A Results": float(ing.get("pass_a_results", 0) or 0),
+            "Pass B Results": float(ing.get("pass_b_results", 0) or 0),
+            "After Dedup": float(ing.get("after_cross_dedup", 0) or 0),
+            "DB Duplicates": float(ing.get("duplicates_db", 0) or 0),
+            "New In Queue": float(ing.get("new_entries", 0) or 0),
+            "Analyzed": float(rec.get("analyzed", 0) or 0),
+            "New In KB": float(rec.get("new_entries", 0) or 0),
+            "Updated In KB": float(rec.get("updated_entries", 0) or 0),
+            "Escalations Sent": float(rec.get("escalations_sent", 0) or 0),
+        })
+
+        error_msg = cycle_summary.get("error", "")
+        if error_msg:
+            rich_text_fields["Errors"] = str(error_msg)[:500]
+
+        status = "Success" if cycle_summary.get("success") else "Failed"
+
+    else:
+        number_fields.update({
+            "Pass A Results": 0.0,
+            "Pass B Results": 0.0,
+            "After Dedup": 0.0,
+            "DB Duplicates": 0.0,
+            "New In Queue": 0.0,
+            "New In KB": 0.0,
+            "Updated In KB": 0.0,
+            "Escalations Sent": 0.0,
+            "Analyzed": float(cycle_summary.get("entries_scored", 0) or 0),
+        })
+
+        errors_list = cycle_summary.get("errors", [])
+        if errors_list:
+            error_str = "; ".join(str(e)[:200] for e in errors_list)[:500]
+            rich_text_fields["Errors"] = error_str
+
+        status = "Success" if cycle_summary.get("brief_generated") else "Failed"
+
+    select_fields = {"Run Type": run_type, "Status": status}
+    date_fields = {"Run Date": run_date}
+
+    props = build_page_properties(
+        title=run_title,
+        select_fields=select_fields,
+        date_fields=date_fields,
+        rich_text_fields=rich_text_fields if rich_text_fields else None,
+        number_fields=number_fields,
+    )
+
+    try:
+        page_id = create_page(pr_id, props)
+        logger.info(f"Logged pipeline run: {run_title} [{status}]")
+        return page_id
+    except Exception as e:
+        logger.error(f"Failed to log pipeline run: {e}")
+        return None

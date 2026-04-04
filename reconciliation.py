@@ -298,6 +298,7 @@ def run_reconciliation() -> dict:
         "new_entries": new_entries,
         "updated_entries": updated_entries,
         "archived_from_queue": archived_from_queue,
+        "escalations_sent": escalation_count,
         "errors": errors,
     }
 

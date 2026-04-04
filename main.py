@@ -4,11 +4,13 @@ Run this file to start the pipeline.
 """
 
 import sys
+import time
 
 from config import validate_config, load_database_ids
 from logger import setup_logger
 from ingestion import run_ingestion
 from reconciliation import run_reconciliation
+from notion_client import log_pipeline_run
 
 logger = setup_logger()
 
@@ -32,6 +34,8 @@ def run_search_cycle(cycle_number: int) -> dict:
             "error": str | None,     # error message if failed
         }
     """
+    start_time = time.time()
+
     result = {
         "cycle": cycle_number,
         "ingestion": None,
@@ -55,6 +59,8 @@ def run_search_cycle(cycle_number: int) -> dict:
         logger.error(f"Stage 1 (Ingestion) failed: {e}")
         result["error"] = f"Ingestion failed: {e}"
         logger.info(f"Skipping Stage 2 — nothing to reconcile")
+        duration = time.time() - start_time
+        log_pipeline_run(f"Cycle {cycle_number}", result, duration)
         return result
 
     # Stage 2: Reconciliation (includes escalation)
@@ -69,6 +75,8 @@ def run_search_cycle(cycle_number: int) -> dict:
         logger.error(f"Stage 2 (Reconciliation) failed: {e}")
         result["error"] = f"Reconciliation failed: {e}"
         logger.info(f"Queue entries preserved for next cycle")
+        duration = time.time() - start_time
+        log_pipeline_run(f"Cycle {cycle_number}", result, duration)
         return result
 
     result["success"] = True
@@ -174,7 +182,10 @@ def main():
 
         if arg == "brief":
             from curation import run_daily_brief
+            start_time = time.time()
             summary = run_daily_brief()
+            duration = time.time() - start_time
+            log_pipeline_run("Daily Brief", summary, duration)
             _print_brief_summary(summary)
             return
 

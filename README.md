@@ -75,6 +75,7 @@ PAI/
 ├── scheduler.py           # APScheduler configuration
 ├── health.py              # Health check (6 service checks)
 ├── setup_notion.py        # One-time Notion DB setup
+├── setup_pipeline_runs.py  # Pipeline Runs DB setup
 ├── setup_strategic_context.py  # Seed Strategic Context DB
 ├── requirements.txt       # Python dependencies
 ├── .env                   # API keys + configuration
@@ -362,3 +363,23 @@ The container runs `python main.py start` (scheduler mode). Logs persist to `./l
 | Category | select | Framework / Entity / India Context / Noise Filter / Signal Indicator |
 | Content | rich_text | Detailed definition or description |
 | Not Using Anymore | checkbox | Mark inactive entries |
+
+**Pipeline Runs** — audit log of every pipeline execution
+
+| Property | Type | Notes |
+|---|---|---|
+| Run Title | title | e.g., "Cycle 1 — 2026-04-05 06:30" |
+| Run Type | select | Cycle 1 / Cycle 2 / Cycle 3 / Cycle 4 / Daily Brief |
+| Run Date | date | Date of run |
+| Pass A Results | number | Raw results from Pass A |
+| Pass B Results | number | Raw results from Pass B |
+| After Dedup | number | After cross-variant dedup |
+| DB Duplicates | number | Duplicates against existing KB |
+| New In Queue | number | Written to ingestion queue |
+| Analyzed | number | Processed by Stage 2 AI |
+| New In KB | number | Created in Main KB |
+| Updated In KB | number | Updated in Main KB |
+| Escalations Sent | number | High-signal emails sent |
+| Errors | rich_text | Error message string (if any) |
+| Status | select | Success / Failed |
+| Duration Seconds | number | Total run time |

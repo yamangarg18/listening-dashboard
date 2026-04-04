@@ -4,12 +4,14 @@ Runs the pipeline on a daily schedule using APScheduler.
 Implemented in Chunk 16.
 """
 
+import time
 from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.interval import IntervalTrigger
 from apscheduler.events import EVENT_JOB_ERROR, EVENT_JOB_EXECUTED
 
 from logger import setup_logger
+from notion_client import log_pipeline_run
 
 logger = setup_logger("scheduler")
 
@@ -19,26 +21,36 @@ def _run_cycle_safe(cycle_number: int) -> None:
     Wrapper that runs a search cycle and catches ALL exceptions.
     The scheduler must never crash because a cycle failed.
     """
+    start_time = time.time()
     try:
         from main import run_search_cycle
         summary = run_search_cycle(cycle_number)
+        duration = time.time() - start_time
+        log_pipeline_run(f"Cycle {cycle_number}", summary, duration)
         if not summary["success"]:
             logger.error(f"Cycle {cycle_number} failed: {summary.get('error')}")
     except Exception as e:
+        duration = time.time() - start_time
         logger.error(f"Cycle {cycle_number} crashed: {e}", exc_info=True)
+        log_pipeline_run(f"Cycle {cycle_number}", {"success": False, "error": str(e), "ingestion": None, "reconciliation": None}, duration)
 
 
 def _run_brief_safe() -> None:
     """
     Wrapper that runs the daily brief and catches ALL exceptions.
     """
+    start_time = time.time()
     try:
         from curation import run_daily_brief
         summary = run_daily_brief()
+        duration = time.time() - start_time
+        log_pipeline_run("Daily Brief", summary, duration)
         if not summary["brief_generated"]:
             logger.error(f"Daily brief failed: {summary.get('errors')}")
     except Exception as e:
+        duration = time.time() - start_time
         logger.error(f"Daily brief crashed: {e}", exc_info=True)
+        log_pipeline_run("Daily Brief", {"brief_generated": False, "errors": [str(e)], "entries_scored": 0}, duration)
 
 
 def _run_extract_poll_safe() -> None:
