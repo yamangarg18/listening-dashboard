@@ -1,0 +1,21 @@
+version: "3.8"
+
+services:
+  pipeline:
+    build: .
+    container_name: listening-pipeline
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./database_ids.json:/app/database_ids.json
+      - ./state.json:/app/state.json
+      - ./search_config.json:/app/search_config.json
+      - ./logs:/app/logs
+    environment:
+      - TZ=Asia/Kolkata
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

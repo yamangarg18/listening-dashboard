@@ -1,0 +1,15 @@
+venv/
+__pycache__/
+*.pyc
+.env
+.env.example
+.git/
+.gitignore
+*.log
+*.md
+database_ids.json
+state.json
+logs/
+CHUNK_*
+TEST_*
+OPENCODE.md

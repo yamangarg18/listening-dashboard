@@ -1,0 +1,36 @@
+{
+  "high": [
+    {
+      "title": "Arm launches 'Physical AI' unit, joining rush to robotics",
+      "reason": "Major competitor entering Physical AI directly, affects competitive landscape and School 1-4 dynamics"
+    },
+    {
+      "title": "Physical AI Startup Raises $50M Series B",
+      "reason": "Significant funding in the space, signals investor confidence in Physical AI commercialization"
+    }
+  ],
+  "medium": [
+    {
+      "title": "5 AI Architects Share What Worries and Excites Them About Next-Gen AI",
+      "reason": "Industry discourse, useful context but no direct action trigger or new information"
+    },
+    {
+      "title": "Physical AI Made Waves At CES 2026. What Is It?",
+      "reason": "Awareness and validation article, no new technical or business information"
+    }
+  ],
+  "low": [
+    {
+      "title": "AI data centres and the law: What you need to know",
+      "reason": "Generic AI compliance topic with no Physical AI or robotics component"
+    },
+    {
+      "title": "What to Know About AI and Campus Mental Health",
+      "reason": "Completely unrelated to Physical AI, robotics, or manufacturing — pure software AI application"
+    },
+    {
+    "title": "Some Generic AI Opinion Article",
+    "reason": "Pure opinion with no actionable intelligence for Physical AI"
+    }
+  ]
+}

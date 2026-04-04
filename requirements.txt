@@ -1,0 +1,9 @@
+# External dependencies
+httpx>=0.27.0
+openai>=1.40.0
+python-dotenv>=1.0.0
+apscheduler>=3.10.0
+tenacity>=8.2.0
+
+# Standard library (included for reference)
+# datetime, email.mime.*, typing.*, difflib, json, logging, os, re, smtplib, sys, time, urllib.parse

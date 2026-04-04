@@ -1,0 +1,67 @@
+{
+  "variants": [
+    {
+      "label": "breaking",
+      "objective": "Breaking news published in the last 48 hours about {topic}, robotics, or autonomous systems",
+      "search_queries": [
+        "{topic} news today",
+        "robotics announcement this week"
+      ],
+      "enabled": true
+    },
+    {
+      "label": "funding",
+      "objective": "Venture capital funding rounds, acquisitions, and IPOs for {topic} and robotics startups in {year}",
+      "search_queries": [
+        "{topic} series A B C funding {year}",
+        "robotics startup acquisition {year}"
+      ],
+      "enabled": true
+    },
+    {
+      "label": "policy",
+      "objective": "Government regulations, export controls, trade policy, and legislative actions affecting {topic} and AI",
+      "search_queries": [
+        "AI robotics regulation {year}",
+        "export controls autonomous systems policy"
+      ],
+      "enabled": true
+    },
+    {
+      "label": "research",
+      "objective": "Academic papers, university research, and technical breakthroughs in {topic}, embodied AI, and robot learning",
+      "search_queries": [
+        "{topic} research paper {year}",
+        "embodied AI robot learning breakthrough"
+      ],
+      "enabled": true
+    },
+    {
+      "label": "india",
+      "objective": "India-specific developments in {topic}, robotics manufacturing, automation policy, and Make in India for robotics",
+      "search_queries": [
+        "India robotics {topic} {year}",
+        "India manufacturing automation AI policy"
+      ],
+      "enabled": true
+    },
+    {
+      "label": "ecosystem",
+      "objective": "Industry analysis, market reports, competitive landscape, and ecosystem mapping for {topic} and robotics industry",
+      "search_queries": [
+        "{topic} market analysis report {year}",
+        "robotics industry landscape competitive analysis"
+      ],
+      "enabled": true
+    },
+    {
+    "label": "china",
+    "objective": "China-specific developments in {topic}, robotics manufacturing, export restrictions",
+    "search_queries": [
+        "China robotics {topic} {year}",
+        "China AI manufacturing export controls"
+    ],
+    "enabled": true
+    }
+  ]
+}

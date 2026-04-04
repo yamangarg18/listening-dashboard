@@ -1,0 +1,8 @@
+.env
+__pycache__/
+*.pyc
+venv/
+database_ids.json
+state.json
+*.log
+logs/
